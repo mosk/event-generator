@@ -12,6 +12,12 @@ import EventForm from './components/EventForm.vue'
 </template>
 
 <style scoped>
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 header {
   line-height: 1.5;
 }
