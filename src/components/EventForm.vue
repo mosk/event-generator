@@ -10,7 +10,7 @@
           id="date-start"
           name="date-start"
           type="datetime-local"
-          value="2018-06-12T19:30"
+          v-model="form.dateStart"
           min="2018-06-07T00:00"
           required
         />
@@ -23,7 +23,7 @@
           id="date-end"
           name="date-end"
           type="datetime-local"
-          value="2018-06-12T19:30"
+          v-model="form.dateEnd"
           min="2018-06-07T00:00"
           required
         />
@@ -32,7 +32,7 @@
       <label class="label" for="timezone">
         <span>Часовой пояс</span>
 
-        <select name="timezone" id="timezone">
+        <select name="timezone" id="timezone" v-model="form.timezone">
           <option :value="value" :key="value" v-for="value in timezoneArr">{{ value }}</option>
         </select>
       </label>
@@ -106,12 +106,16 @@ import { onMounted, reactive, type Reactive } from 'vue'
 type TForm = {
   title: string
   desc: string
+
+  /** YYYY-MM-DDThh:mm */
   dateStart: string
+
+  /** YYYY-MM-DDThh:mm */
   dateEnd: string
   timezone: string
 
   remindValue: number
-  remindType: string
+  remindType: 'minutes' | 'hours' | 'days'
 
   url?: string
   address?: string
@@ -125,7 +129,7 @@ const form: Reactive<TForm> = reactive({
   desc: '',
   dateStart: '',
   dateEnd: '',
-  timezone: '',
+  timezone: Intl.supportedValuesOf('timeZone')[0],
 
   remindValue: 2,
   remindType: 'hours',
