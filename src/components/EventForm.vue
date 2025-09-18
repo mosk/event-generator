@@ -97,6 +97,7 @@
     </fieldset>
 
     <button type="button" @click="createEvent">Создать событие</button>
+    <Button label="Submit" />
   </form>
 </template>
 

@@ -1,19 +1,14 @@
 <template>
-  <main class="w-full">
-    <AuthForm />
+  <main>
+    <PageDescription />
+
+    <EventForm />
   </main>
 </template>
 
 <script setup lang="ts">
 import PageDescription from './components/PageDescription.vue'
 import EventForm from './components/EventForm.vue'
-import AuthForm from './components/AuthForm.vue'
 </script>
 
-<style scoped>
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-</style>
+<style scoped></style>
