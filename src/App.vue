@@ -1,13 +1,13 @@
 <template>
   <main class="w-full">
-    <AuthForm />
+    <CreateEvent />
   </main>
 </template>
 
 <script setup lang="ts">
-import PageDescription from './components/PageDescription.vue'
-import EventForm from './components/EventForm.vue'
-import AuthForm from './components/AuthForm.vue'
+// import PageDescription from './components/PageDescription.vue'
+import CreateEvent from './components/forms/CreateEvent.vue'
+// import AuthForm from './components/AuthForm.vue'
 </script>
 
 <style scoped>

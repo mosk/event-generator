@@ -1,4 +1,25 @@
 <template>
+  <Form
+    v-slot="$form"
+    :initialValues
+    :resolver
+    @submit="onSubmit"
+    class="flex flex-col gap-4 w-full sm:w-56"
+  >
+    <div class="flex flex-col gap-1">
+      <InputText name="username" type="text" placeholder="Username" fluid />
+      <Message v-if="$form.username?.invalid" severity="error" size="small" variant="simple">{{
+        $form.username.error?.message
+      }}</Message>
+
+      <InputText name="password" type="password" placeholder="Password" fluid />
+      <Message v-if="$form.password?.invalid" severity="error" size="small" variant="simple">{{
+        $form.password.error?.message
+      }}</Message>
+    </div>
+    <Button type="submit" severity="secondary" label="Submit" :disabled="isLoading" />
+  </Form>
+
   <form class="form" action="">
     <fieldset class="form-section">
       <legend>Событие</legend>
@@ -103,29 +124,25 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, type Reactive } from 'vue'
+import type { UserEvent } from '@/types'
+import type { FormResolverOptions, FormSubmitEvent } from '@primevue/forms'
 
-type TForm = {
-  title: string
-  desc: string
-
-  /** YYYY-MM-DDThh:mm */
-  dateStart: string
-
-  /** YYYY-MM-DDThh:mm */
-  dateEnd: string
-  timezone: string
-
-  remindValue: number
-  remindType: 'minutes' | 'hours' | 'days'
-
-  url?: string
-  address?: string
-}
+const initialValues = reactive<UserEvent>({
+  title: '',
+  desc: '',
+  dateStart: '',
+  dateEnd: '',
+  timezone: '',
+  remindValue: undefined,
+  remindType: undefined,
+  url: undefined,
+  address: undefined,
+})
 
 const timezoneArr: Array<string> = Intl.supportedValuesOf('timeZone')
 const remindType: Array<string> = ['Минуты', 'Часы', 'Дни']
 
-const form: Reactive<TForm> = reactive({
+const form: Reactive<UserEvent> = reactive({
   title: '',
   desc: '',
   dateStart: '',
@@ -140,49 +157,59 @@ const createEvent = () => {
   console.log(form)
 }
 
+const resolver = ({ values }: FormResolverOptions) => {
+  const errors = {} as Record<keyof typeof initialValues, Array<Pick<Error, 'message'>>>
+
+  if (!values.username) errors.username = [{ message: 'Username is required.' }]
+  if (!values.password) errors.password = [{ message: 'Password is required.' }]
+
+  return {
+    values, // (Optional) Used to pass current form values to submit event.
+    errors,
+  }
+}
+
+const onSubmit = async ({ valid, values }: FormSubmitEvent<UserEvent>) => {
+  if (!valid) return
+
+  const { username, password } = values
+  if (!username || !password) return
+
+  const url = 'http://localhost:3000/'
+  let toastMsg: ToastMessageOptions = { life: 3000 }
+
+  try {
+    isLoading.value = true
+
+    const res = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify({
+        email: username,
+        password,
+      }),
+    })
+
+    console.log(res)
+
+    toastMsg = {
+      severity: 'success',
+      summary: 'Form is submitted.',
+    }
+  } catch (err) {
+    toastMsg = {
+      severity: 'error',
+      summary: (err as Error).message,
+    }
+  } finally {
+    isLoading.value = false
+  }
+
+  toast.add(toastMsg)
+}
+
 onMounted(() => {
   console.log(Intl.supportedValuesOf('timeZone'))
 })
 </script>
 
-<style scoped>
-.form {
-  margin: 0;
-  padding: 0;
-
-  .form-section {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    margin: 0;
-    padding: 16px;
-    gap: 8px;
-    border: unset;
-    border: 1px solid grey;
-  }
-}
-
-.label {
-  display: flex;
-  flex-wrap: wrap;
-
-  span {
-    width: 100%;
-  }
-
-  input,
-  select,
-  textarea {
-    width: 100%;
-  }
-
-  /* &[for*='date-'] {
-    background-color: red;
-  } */
-
-  &[for='timezone'],
-  &[for='title'],
-  &[for='desc'] {
-    grid-column: 1 / span 2;
-  }
-}
-</style>
+<style scoped></style>
