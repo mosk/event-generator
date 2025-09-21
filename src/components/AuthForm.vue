@@ -20,18 +20,20 @@
           $form.password.error?.message
         }}</Message>
       </div>
-      <Button type="submit" severity="secondary" label="Submit" />
+      <Button type="submit" severity="secondary" label="Submit" :disabled="isLoading" />
     </Form>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import type { FormResolverOptions } from '@primevue/forms'
+import type { ToastMessageOptions } from 'primevue'
 
 const toast = useToast()
 
+const isLoading = ref(false)
 const initialValues = reactive({
   username: '',
   password: '',
@@ -49,14 +51,42 @@ const resolver = ({ values }: FormResolverOptions) => {
   }
 }
 
-const onFormSubmit = ({ valid }: { valid: boolean }) => {
+const onFormSubmit = async ({ valid, values }) => {
   if (!valid) return
 
-  toast.add({
-    severity: 'success',
-    summary: 'Form is submitted.',
-    life: 3000,
-  })
+  const { username, password } = values
+  if (!username || !password) return
+
+  const url = 'http://localhost:3000/'
+  let toastMsg: ToastMessageOptions = { life: 3000 }
+
+  try {
+    isLoading.value = true
+
+    const res = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify({
+        email: username,
+        password,
+      }),
+    })
+
+    console.log(res)
+
+    toastMsg = {
+      severity: 'success',
+      summary: 'Form is submitted.',
+    }
+  } catch (err) {
+    toastMsg = {
+      severity: 'error',
+      summary: (err as Error).message,
+    }
+  } finally {
+    isLoading.value = false
+  }
+
+  toast.add(toastMsg)
 }
 </script>
 

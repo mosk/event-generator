@@ -10,6 +10,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     AuthForm: typeof import('./src/components/AuthForm.vue')['default']
     Button: typeof import('primevue/button')['default']
+    CreateEvent: typeof import('./src/components/forms/CreateEvent.vue')['default']
     EventForm: typeof import('./src/components/EventForm.vue')['default']
     Form: typeof import('@primevue/forms/form')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
