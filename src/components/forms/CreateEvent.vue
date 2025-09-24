@@ -4,8 +4,34 @@
     :initialValues
     :resolver
     @submit="onSubmit"
-    class="flex flex-col gap-4 w-full sm:w-56"
+    class="flex flex-col gap-4 w-full sm:w-56 m-auto border"
   >
+    <FloatLabel variant="in">
+      <DatePicker
+        v-model="dateStart"
+        inputId="dateStart"
+        showTime
+        hourFormat="24"
+        iconDisplay="input"
+        variant="filled"
+      />
+      <label for="dateStart">Начало</label>
+    </FloatLabel>
+
+    <FloatLabel variant="in">
+      <DatePicker
+        v-model="dateEnd"
+        inputId="dateEnd"
+        showTime
+        hourFormat="24"
+        iconDisplay="input"
+        variant="filled"
+      />
+      <label for="dateEnd">Конец</label>
+    </FloatLabel>
+
+    <DatePicker v-model="dateEnd" showTime hourFormat="24" />
+
     <div class="flex flex-col gap-1">
       <InputText name="username" type="text" placeholder="Username" fluid />
       <Message v-if="$form.username?.invalid" severity="error" size="small" variant="simple">{{
@@ -123,9 +149,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, type Reactive } from 'vue'
+import { onMounted, reactive, ref, type Reactive } from 'vue'
 import type { UserEvent } from '@/types'
 import type { FormResolverOptions, FormSubmitEvent } from '@primevue/forms'
+
+const dateStart = ref(new Date())
+const dateEnd = ref(new Date())
 
 const initialValues = reactive<UserEvent>({
   title: '',
