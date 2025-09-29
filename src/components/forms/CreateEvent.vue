@@ -4,33 +4,40 @@
     :initialValues
     :resolver
     @submit="onSubmit"
-    class="flex flex-col gap-4 w-full sm:w-56 m-auto border"
+    class="flex flex-wrap p-8 pt-12 gap-y-12 w-full m-auto border"
   >
-    <FloatLabel variant="in">
-      <DatePicker
-        v-model="dateStart"
-        inputId="dateStart"
-        showTime
-        hourFormat="24"
-        iconDisplay="input"
-        variant="filled"
-      />
-      <label for="dateStart">Начало</label>
-    </FloatLabel>
+    <div class="flex w-full gap-x-4">
+      <FloatLabel class="w-1/2">
+        <DatePicker
+          v-model="form.dateStart"
+          inputId="dateStart"
+          showTime
+          hourFormat="24"
+          iconDisplay="input"
+          variant="filled"
+          class="w-full"
+        />
+        <label for="dateStart">Начало</label>
+      </FloatLabel>
 
-    <FloatLabel variant="in">
-      <DatePicker
-        v-model="dateEnd"
-        inputId="dateEnd"
-        showTime
-        hourFormat="24"
-        iconDisplay="input"
-        variant="filled"
-      />
-      <label for="dateEnd">Конец</label>
-    </FloatLabel>
+      <FloatLabel class="w-1/2">
+        <DatePicker
+          v-model="form.dateEnd"
+          inputId="dateEnd"
+          showTime
+          hourFormat="24"
+          iconDisplay="input"
+          variant="filled"
+          class="w-full"
+        />
+        <label for="dateEnd">Конец</label>
+      </FloatLabel>
+    </div>
 
-    <DatePicker v-model="dateEnd" showTime hourFormat="24" />
+    <FloatLabel class="w-full">
+      <Select v-model="form.timezone" :options="timezoneArr" class="w-full" />
+      <label for="dateEnd">Часовой пояс</label>
+    </FloatLabel>
 
     <div class="flex flex-col gap-1">
       <InputText name="username" type="text" placeholder="Username" fluid />
@@ -153,34 +160,21 @@ import { onMounted, reactive, ref, type Reactive } from 'vue'
 import type { UserEvent } from '@/types'
 import type { FormResolverOptions, FormSubmitEvent } from '@primevue/forms'
 
-const dateStart = ref(new Date())
-const dateEnd = ref(new Date())
-
-const initialValues = reactive<UserEvent>({
-  title: '',
-  desc: '',
-  dateStart: '',
-  dateEnd: '',
-  timezone: '',
-  remindValue: undefined,
-  remindType: undefined,
-  url: undefined,
-  address: undefined,
-})
-
 const timezoneArr: Array<string> = Intl.supportedValuesOf('timeZone')
 const remindType: Array<string> = ['Минуты', 'Часы', 'Дни']
-
-const form: Reactive<UserEvent> = reactive({
+const initialValues: UserEvent = {
   title: '',
   desc: '',
-  dateStart: '',
-  dateEnd: '',
-  timezone: Intl.supportedValuesOf('timeZone')[0],
-
+  dateStart: new Date(),
+  dateEnd: new Date(),
+  timezone: timezoneArr[0],
   remindValue: 2,
   remindType: 'hours',
-})
+  url: undefined,
+  address: undefined,
+}
+
+const form: Reactive<UserEvent> = reactive(initialValues)
 
 const createEvent = () => {
   console.log(form)
