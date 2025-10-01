@@ -1,3 +1,5 @@
+export type TimeItem = 'minutes' | 'hours' | 'days'
+
 export interface UserEvent {
   title: string
   desc: string
@@ -7,7 +9,7 @@ export interface UserEvent {
   dateEnd: Date
   timezone: string
   remindValue?: number
-  remindType?: 'minutes' | 'hours' | 'days'
+  remindType?: TimeItem
   url?: string
   address?: string
 }

@@ -4,8 +4,56 @@
     :initialValues
     :resolver
     @submit="onSubmit"
-    class="flex flex-wrap p-8 pt-12 gap-y-12 w-full m-auto border"
+    class="flex flex-wrap p-8 pt-12 gap-y-10 w-full m-auto"
   >
+    <FloatLabel class="w-full">
+      <InputText
+        v-model="form.title"
+        name="title"
+        type="text"
+        placeholder="Хоп хэй лала лэй"
+        fluid
+        autofocus
+      />
+      <label for="title">Заголовок</label>
+    </FloatLabel>
+
+    <FloatLabel class="w-full">
+      <Textarea
+        v-model="form.desc"
+        name="desc"
+        rows="3"
+        placeholder="Всё так и не так, и как будто бы пустяк..."
+        fluid
+      />
+      <label for="title">Описание</label>
+    </FloatLabel>
+
+    <div class="flex w-full gap-x-4">
+      <FloatLabel class="w-1/2">
+        <InputText
+          v-model="form.url"
+          name="url"
+          type="url"
+          placeholder="https://example.com"
+          fluid
+          pattern="https://.*"
+        />
+        <label for="title">Ссылка на сайт</label>
+      </FloatLabel>
+
+      <FloatLabel class="w-1/2">
+        <InputText
+          v-model="form.address"
+          name="address"
+          type="text"
+          placeholder="Бейкер-стрит, 221B, Лондон"
+          fluid
+        />
+        <label for="title">Адрес</label>
+      </FloatLabel>
+    </div>
+
     <div class="flex w-full gap-x-4">
       <FloatLabel class="w-1/2">
         <DatePicker
@@ -39,7 +87,28 @@
       <label for="dateEnd">Часовой пояс</label>
     </FloatLabel>
 
-    <div class="flex flex-col gap-1">
+    <div class="flex w-full gap-x-4">
+      <FloatLabel class="w-1/2">
+        <Select
+          v-model="form.remindValue"
+          :options="remindValue[form?.remindType ?? 'minutes']"
+          class="w-full"
+        />
+        <label for="dateEnd">Напомнить о событии за</label>
+      </FloatLabel>
+
+      <FloatLabel class="w-1/2">
+        <Select
+          v-model="form.remindType"
+          :options="remindTypeOptions"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+        />
+      </FloatLabel>
+    </div>
+
+    <!-- <div class="flex flex-col gap-1">
       <InputText name="username" type="text" placeholder="Username" fluid />
       <Message v-if="$form.username?.invalid" severity="error" size="small" variant="simple">{{
         $form.username.error?.message
@@ -49,136 +118,62 @@
       <Message v-if="$form.password?.invalid" severity="error" size="small" variant="simple">{{
         $form.password.error?.message
       }}</Message>
-    </div>
-    <Button type="submit" severity="secondary" label="Submit" :disabled="isLoading" />
+    </div> -->
+    <Button
+      type="submit"
+      label="Создать событие"
+      class="ml-auto"
+      :disabled="isLoading || !isValidate"
+    />
   </Form>
-
-  <form class="form" action="">
-    <fieldset class="form-section">
-      <legend>Событие</legend>
-
-      <label class="label" for="date-start">
-        <span>Начало</span>
-
-        <input
-          id="date-start"
-          name="date-start"
-          type="datetime-local"
-          v-model="form.dateStart"
-          min="2018-06-07T00:00"
-          required
-        />
-      </label>
-
-      <label class="label" for="date-end">
-        <span>Окончание</span>
-
-        <input
-          id="date-end"
-          name="date-end"
-          type="datetime-local"
-          v-model="form.dateEnd"
-          min="2018-06-07T00:00"
-          required
-        />
-      </label>
-
-      <label class="label" for="timezone">
-        <span>Часовой пояс</span>
-
-        <select name="timezone" id="timezone" v-model="form.timezone">
-          <option :value="value" :key="value" v-for="value in timezoneArr">{{ value }}</option>
-        </select>
-      </label>
-
-      <label class="label" for="title">
-        <span>Заголовок</span>
-
-        <input
-          v-model="form.title"
-          id="title"
-          name="title"
-          type="text"
-          placeholder="Текст заголовка"
-        />
-      </label>
-
-      <label class="label" for="desc">
-        <span>Описание</span>
-
-        <textarea
-          v-model="form.desc"
-          id="desc"
-          name="desc"
-          placeholder="Текст заголовка"
-        ></textarea>
-      </label>
-
-      <label class="label" for="url">
-        <span>Ссылка на сайт</span>
-
-        <input
-          v-model="form.url"
-          id="url"
-          name="url"
-          type="url"
-          placeholder="https://example.com"
-          pattern="https://.*"
-        />
-      </label>
-
-      <label class="label" for="address">
-        <span>Адрес</span>
-
-        <input
-          v-model="form.address"
-          id="address"
-          name="address"
-          type="text"
-          placeholder="Бейкер-стрит, 221B, Лондон"
-        />
-      </label>
-    </fieldset>
-
-    <fieldset class="form-section">
-      <legend>Напомнить о событии за</legend>
-
-      <input id="remind-value" name="remind-value" type="number" placeholder="2" />
-
-      <select name="remind-type" id="remind-type">
-        <option :value="value" :key="value" v-for="value in remindType">{{ value }}</option>
-      </select>
-    </fieldset>
-
-    <button type="button" @click="createEvent">Создать событие</button>
-    <Button label="Submit" />
-  </form>
 </template>
 
 <script setup lang="ts">
 import { onMounted, reactive, ref, type Reactive } from 'vue'
-import type { UserEvent } from '@/types'
+import type { TimeItem, UserEvent } from '@/types'
 import type { FormResolverOptions, FormSubmitEvent } from '@primevue/forms'
 
 const timezoneArr: Array<string> = Intl.supportedValuesOf('timeZone')
-const remindType: Array<string> = ['Минуты', 'Часы', 'Дни']
+
+const remindTypeOptions: Array<{
+  label: string
+  value: TimeItem
+}> = [
+  {
+    label: 'Минуты',
+    value: 'minutes',
+  },
+  {
+    label: 'Часы',
+    value: 'hours',
+  },
+  {
+    label: 'Дни',
+    value: 'days',
+  },
+]
+
+const remindValue: Record<TimeItem, Array<number>> = {
+  minutes: Array.from({ length: 59 }, (_, v) => v + 1),
+  hours: Array.from({ length: 23 }, (_, v) => v + 1),
+  days: Array.from({ length: 31 }, (_, v) => v + 1),
+}
+
 const initialValues: UserEvent = {
   title: '',
   desc: '',
   dateStart: new Date(),
   dateEnd: new Date(),
-  timezone: timezoneArr[0],
+  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   remindValue: 2,
-  remindType: 'hours',
+  remindType: remindTypeOptions[0].value,
   url: undefined,
   address: undefined,
 }
 
+const isLoading = ref(false)
+const isValidate = ref(false)
 const form: Reactive<UserEvent> = reactive(initialValues)
-
-const createEvent = () => {
-  console.log(form)
-}
 
 const resolver = ({ values }: FormResolverOptions) => {
   const errors = {} as Record<keyof typeof initialValues, Array<Pick<Error, 'message'>>>
@@ -229,10 +224,6 @@ const onSubmit = async ({ valid, values }: FormSubmitEvent<UserEvent>) => {
 
   toast.add(toastMsg)
 }
-
-onMounted(() => {
-  console.log(Intl.supportedValuesOf('timeZone'))
-})
 </script>
 
 <style scoped></style>
